@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<script src="static/js/Chart.min.js"></script>
+<script src="static/js/utils.js"></script>
+<link rel="stylesheet" href="static/css/bootstrap.min.css">
+
+<script>
+	function onChangeMash() {
+		var e = document.getElementById("mash");
+		var mashID = e.options[e.selectedIndex].value;
+
+		var table = document.getElementById("mashTable").getElementsByTagName('tbody')[0];
+		table.innerHTML = '';
+
+		var content = "";
+		var newRow;
+		var newCell;
+		{% for i in incidents_by_persons %}
+			if (mashID == {{i.persID}}) {
+				newRow = table.insertRow();
+
+				newCell = document.createElement('td');
+				newCell.innerHTML = "{{i.person}}";
+				newRow.appendChild(newCell);
+
+				// newCell = document.createElement('td');
+				// newCell.innerHTML = "{{i.id_sp_nar}}";
+				// newRow.appendChild(newCell);
+
+				newCell = document.createElement('td');
+				newCell.innerHTML = "{{i.caption}}";
+				newRow.appendChild(newCell);
+
+				newCell = document.createElement('td');
+				newCell.innerHTML = "{{i._count}}";
+				newRow.appendChild(newCell);
+
+				newCell = document.createElement('td');
+				newCell.innerHTML = "{{i.totalCount}}";
+				newRow.appendChild(newCell);
+
+
+				newCell = document.createElement('td');
+				newCell.innerHTML = "{{i.ver}}";
+				newRow.appendChild(newCell);
+
+				newCell = document.createElement('td');
+				newCell.innerHTML = "{{i.risk}}";
+				newRow.appendChild(newCell);
+
+
+			}
+
+		{% endfor %}
+	};
+
+	function clickPerson(persID) {
+		var e = document.getElementById("mash");
+		e.value = persID;
+		e.dispatchEvent(new Event('change'));
+
+	};
+
+	function clickRoad(roadName) {
+		"use strict";
+		var newRow;
+		var newCell;
+		var table = document.getElementById("tableEnterprises").getElementsByTagName('tbody')[0];
+		var roads = [];
+		table.innerHTML = '';
+		{% for i in incidents_by_roads %}
+			if ((roadName === '{{i.CaptionLong}}') && (!roads.includes({{i.EnterpriseID}})) ) {
+				newRow = table.insertRow();
+				newRow.setAttribute('onClick', 'clickEnterprise({{i.RoadID}}, {{i.EnterpriseID}})');
+
+				newCell = document.createElement('td');
+				newCell.innerHTML = "{{i.EnterpriseID}}";
+				newRow.appendChild(newCell);
+				roads.push({{i.EnterpriseID}});
+			};
+		{% endfor %}
+
+	};
+
+	function clickEnterprise(roadID, enterpriseID) {
+		"use strict";
+		var v = [];
+		var l = [];
+		var title = '';
+		{% for incident in incidents_by_roads %}
+			if ( (roadID === {{incident.RoadID}}) && (enterpriseID === {{incident.EnterpriseID}}) ) {
+				l.push('{{incident.Caption}}');
+				v.push({{incident.countIncidentsByRoads}});
+				title = '{{incident.CaptionLong}} ' + '{{incident.EnterpriseID}}';
+			};
+		{% endfor %}
+		drawChart(l.slice(0,10), v.slice(0, 10), title);
+	};
+
+	function drawChart(l, v, title) {
+		var color = Chart.helpers.color;
+		var barData = {
+			labels: l
+				
+			,
+
+			datasets: [{
+				backgroundColor: color(window.chartColors.red).alpha(0.5).rgbString(),
+				borderColor: window.chartColors.red,
+				borderWidth: 1,
+				data: v
+			}]
+		};
+		var ctx = document.getElementById('canvasRoads').getContext('2d');
+		if (window.myChart != null) {
+			window.myChart.destroy();
+		};
+		myChart = new Chart(ctx, {
+			type: 'horizontalBar',
+			data: barData,
+			options: {
+				legend: {display: false},
+				title: {
+					display: true,
+					text: title
+				}
+			}
+
+		});
+
+	};
+
+
+	(function() {
+  		'use strict';
+  		window.addEventListener('load', function() {
+		var forms = document.getElementsByClassName('needs-validation');
+		var validation = Array.prototype.filter.call(forms, function(form) {
+			form.addEventListener('submit', function(event) {
+				if (form.checkValidity() === false) {
+					event.preventDefault();
+					event.stopPropagation();
+        		}
+				form.classList.add('was-validated');
+			}, false); });
+		}, false);
+	})();
+
+</script>
+
+
+</head>
+<body>
+<section>
+	<div class="containter-fluid">
+		<div class="row">
+			<div class="col-lg-6">
+				<div class="card-header">
+					<strong>Статистика нарушений</strong>
+				</div>
+				<div class="card-body">
+					<div class="row">
+						<div class="col-sm-12">
+							<form method="POST" action="/">
+								<div class="form-group">
+									<label for="minstr" class="h6">Номер машиниста-инструктора</label>
+									<input id="minstr" name="minstr" class="form-control needs-validation" type="text" placeholder="Номер машиниста-инструктора" value="{{params.minstr}}" required>
+									<label for="dates" class="h6 mt-4">Период</label>
+									<div class="input-group" name="dates">								
+										<input id="start-date" class="form-control needs-validation mr-4" type="date" name="start_date" placeholder="date" value="{{params.start_date}}" required>
+										<label for="finish-date">по</label>
+										<input id="finish-date" class="form-control needs-validation ml-4" type="date" name="finish_date" placeholder="date" value="{{params.finish_date}}" required>
+									</div>
+									<button class="btn btn-sm btn-primary mt-4" type="submit" name="action" value="make">Сформировать</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+				<div class="card-header">
+					<strong>Количество уникальных нарушений</strong>
+				</div>
+				<div class="card-body">
+					<div class="row">
+						<div class="col-sm-12">
+							<table class="table table-responsive-sm table-bordered table-hover" id="topMash">
+								<thead>
+									<tr>
+										<th>Машинист</th>
+										<th>Количество нарушений</th>
+									</tr>
+								</thead>
+								<tbody>
+									{%for unique_incident in unique_incidents %}
+										<tr onClick="clickPerson({{unique_incident.persID}})">
+											<td>{{unique_incident.person}}</td>
+											<td>{{unique_incident._count}}</td>
+										</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-lg-6">
+				<div class="card-header">
+					<strong>Наиболее вероятные нарушения в колонне</strong>
+				</div>
+				<div class="card-body">
+					<div id="container">
+						<canvas id="canvas"></canvas>
+					</div>
+					<script>
+						var color = Chart.helpers.color;
+						var barData = {
+							labels: 
+								{{ labels | safe }}
+							,
+
+							datasets: [{
+								backgroundColor: color(window.chartColors.red).alpha(0.5).rgbString(),
+								borderColor: window.chartColors.red,
+								borderWidth: 1,
+								data: {{ values | safe}}
+							}]
+						};
+						window.onload = function() {
+							var ctx = document.getElementById('canvas').getContext('2d');
+							window.myHorizontalBar = new Chart(ctx, {
+								type: 'horizontalBar',
+								data: barData,
+								options: {
+									legend: {display: false}
+								}
+
+							})
+						};
+
+					</script>
+				</div>
+
+				<div class="card-header">
+					<strong>Вероятность нарушения для машиниста</strong>
+					<select id="mash" class="custom-select" name="mash"  onChange="onChangeMash()">
+						{%for unique_incident in unique_incidents | sort(attribute='person') %}
+							<option value="{{unique_incident.persID}}">{{unique_incident.person}}</option>
+						{% endfor %}
+					</select>
+				</div>
+
+				<div class="card-body">
+					<table class="table table-responsive-sm table-bordered" id="mashTable">
+						<thead>
+							<tr>
+								<th>Машинист</th>
+								<!-- <th>Код нарушения</th> -->
+								<th>Нарушение</th>
+								<th>Количество нарушений</th>
+								<th>Общее количество нарушений</th>
+								<th>Вероятность поездки с нарушением</th>
+								<th>Оценка риска</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<div calss="col-lg-6">
+				<div class="card-header">
+					<strong>Дороги</strong>
+				</div>
+				<div class="card-body">
+					<div class="row">
+						<div class="col-sm-12">
+							<table class="table table-responsive-sm table-bordered table-hover" id="tableRoads">
+								<thead>
+								</thead>
+								<tbody>
+									{% set roads = [] %}
+									{%for incident in incidents_by_roads%}
+										{% set _ = roads.append(incident.CaptionLong) %}
+									{% endfor %}
+
+									{% for road in roads|unique|sort%}
+										<tr onClick="clickRoad('{{road}}')">
+											<td>{{road}}</td>
+										</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-lg-6">
+				<div class="card-header">
+					<strong>Наиболее частые нарушения на дорогах</strong>
+				</div>
+				<div class="card-body">
+					<div id="containerRoads">
+						<canvas id="canvasRoads"></canvas>
+					</div>
+				</div>				
+			</div>
+
+			<div class="col-lg-6">
+				<div class="card-header">
+					<strong>Дирекции</strong>
+				</div>
+				<div class="card-body">
+					<div class="row">
+						<div class="col-sm-12">
+							<table class="table table-responsive-sm table-bordered table-hover" id="tableEnterprises">
+								<thead>
+								</thead>
+								<tbody>					
+
+								</tbody>
+							</table>
+						</div>
+					</div>
+
+				</div>				
+			</div>
+
+
+		</div>
+	</div>
+</section>
+
+
+<script src="static/js/jquery-3.5.1.slim.min.js"></script>
+<script src="static/js/popper.min.js"></script>
+<script src="static/js/bootstrap.min.js"></script>
+</body>
+</html>	

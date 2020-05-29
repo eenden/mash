@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+<body>
+<section>
+	<div class="containter-fluid">
+		<div class="row">
+			<div class="col">
+				<form action="/" method='POST'>
+					<input type="text" class="form-control" placeholder="Поисковый запрос" name="phrase" value="{{phrase}}">
+					<select class="form-control" name="region">
+						{% for key, value in regions.items()%}
+							
+							{% if value == region %}
+								<option selected="selected" value={{key}}>{{value}}</option>
+							{% else %}
+								<option value={{key}}>{{value}}</option>
+							{% endif %}
+						{% endfor%}
+					</select>
+					<button name="action" type="submit" value="find" class="btn btn-primary btn-lg active mr-4">Поиск</button>
+					<button name="action" type="submit" value="save_to_json" class="btn btn-secondary btn-lg active">Сохранить в JSON</button>
+				</form>
+			</div>
+		</div>
+	</div>
+</section>
+<section>
+	<p>Запрос: {{phrase}}</p>
+	<p>Регион: {{region}}</p>
+	<p>URL объявления: {{url_direct}}</p>
+	<p>URL общий поиск: {{url_all}}</p>
+	
+	<table class="table table-bordered">
+		<thead>
+			<th scope="col">№</col>
+			<th scope="col">Заголовок</th>
+			<th scope="col">Ссылка на сайт</th>
+			<th scope ="col">Текст объявления</th>
+			<th scope="col">Быстрые ссылки</th>
+			<th scope="col">Контакты</th>
+		</thead>
+		<tbody>
+			{% if data['top_company_is_not_in_list'] %}
+				<tr class="table-danger">
+					<td class="h5">Сайт занимает первое место в общем поиске, но его нет в обявлениях</td>
+					<td></td>
+					<td class="h5">{{data['top_company_is_not_in_list']}}</td>
+				</tr>
+			{% endif %}
+			{% for k, v in data.items() %}
+				{% if v.is_top %}
+				<tr class="table-success">
+				{% else %}
+				<tr>
+				{% endif %}
+
+					<th scope="row">{{k}}</th>
+					<td>{{v.title}}</td>
+					<td>{{v.main_url}}</td>
+					<td>{{v.content}}</td>
+					<td>
+						<table class="table table-bordered">
+							<tbody>
+								{% for site_link in v.site_links %}
+									<tr>
+										{% for k, info in site_link.items() %}
+											<td>{{k}}</td>
+											<td>
+												{% if info is iterable and info is not string %}
+													{% for i in info %}
+														<p>{{i}}</p>
+													{% endfor %}
+												{% else %}
+													{{info}}
+												{% endif %}
+											</td>
+										{% endfor %}
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</td>
+					<td>
+						<table class="table">
+							<tbody>
+								{% for meta in v.metas %}
+									<tr>
+										{% for k, v in meta.items() %}
+											<td>{{k}}</td>
+											<td>{{v}}</td>
+										{% endfor %}
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</td>
+				</tr>
+			{% endfor%}
+		</tbody>
+	</table>
+</section>
+
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+</body>
+</html>

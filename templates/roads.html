@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<script src="static/js/Chart.min.js"></script>
+<script src="static/js/utils.js"></script>
+<link rel="stylesheet" href="static/css/bootstrap.min.css">
+</head>
+<body>
+<section>
+	<div class="containter-fluid">
+	<div class="row">
+		<div class="col-sm-4">
+			<div class="card-header">
+				<strong>Дороги</strong>
+			</div>
+			<div class="card-body">
+				<div class="row">
+					<div class="col-sm-12">
+						<table class="table table-responsive-sm table-bordered table-hover" id="topMash">
+							<thead>
+								<tr>
+									<th>Дорога</th>
+								</tr>
+							</thead>
+							<tbody>
+								{%for unique_incident in unique_incidents %}
+									<tr onClick="clickPerson({{unique_incident.persID}})">
+										<td>{{unique_incident.person}}</td>
+										<td>{{unique_incident._count}}</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+</section>
+
+
+<script src="static/js/jquery-3.5.1.slim.min.js"></script>
+<script src="static/js/popper.min.js"></script>
+<script src="static/js/bootstrap.min.js"></script>
+</body>
+</html>	

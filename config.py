@@ -1,0 +1,7 @@
+DEBUG = True
+
+SECRET_KEY = 'This is my secret key'
+WTF_CSRF_ENABLED = False
+
+SQLALCHEMY_DATABASE_URI = 'sqlite:///test.db'
+SQLALCHEMY_TRACK_MODIFICATIONS = True
