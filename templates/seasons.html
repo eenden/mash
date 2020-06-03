@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<script src="static/js/Chart.min.js"></script>
+<script src="static/js/utils.js"></script>
+<link rel="stylesheet" href="static/css/bootstrap.min.css">
+<script>
+	(function() {
+  		'use strict';
+  		window.addEventListener('load', function() {
+		var forms = document.getElementsByClassName('needs-validation');
+		var validation = Array.prototype.filter.call(forms, function(form) {
+			form.addEventListener('submit', function(event) {
+				if (form.checkValidity() === false) {
+					event.preventDefault();
+					event.stopPropagation();
+        		}
+				form.classList.add('was-validated');
+			}, false); });
+		}, false);
+	})();
+</script>
+
+</head>
+<body>
+<section>
+	<div class="containter-fluid">
+		<div class="row">
+			<div class="col-sm-4">
+				<div class="card-header">
+					<strong>Сезонная статистика нарушений</strong>
+				</div>
+				<div class="card-body">
+					<div class="row">
+						<div class="col-sm-12">
+							<form method="POST" action="/seasons">
+								<div class="form-group">
+									<label for="minstr" class="h6">Номер машиниста-инструктора</label>
+									<input id="minstr" name="minstr" class="form-control needs-validation" type="text" placeholder="Номер машиниста-инструктора" value="{{params.minstr}}" required>
+
+
+									<label for="rowPeriod1" class="h6 mt-4">Период 1</label>
+									<div class="form-row" name="rowPeriod1">								
+										<div class="col">
+											<select id="period1" class="form-control" name="period1">
+												<option value="inverno" {% if params.period1 == 'inverno' %} selected="selected" {% endif %}>Зима</option>
+												<option value="primavera" {% if params.period1 == 'primavera' %} selected="selected" {% endif %}>Весна</option>
+												<option value="estate" {% if params.period1 == 'estate' %} selected="selected" {% endif %}>Лето</option>
+												<option value="autunno" {% if params.period1 == 'autunno' %} selected="selected" {% endif %}>Осень</option>
+											</select>
+										</div>
+										<div class="col">
+											<select id="year1" class="form-control" name="year1">
+												<option value="2019" {% if params.year1 == 2019 %} selected="selected" {% endif %}>2019</option>
+												<option value="2020" {% if params.year1 == 2020 %} selected="selected" {% endif %}>2020</option>
+											</select>
+										</div>
+									</div>
+									<label for="rowPeriod2" class="h6 mt-4">Период 2</label>
+									<div class="form-row" name="rowPeriod2">
+										<div class="col">
+											<select id="period2" class="form-control" name="period2">
+												<option value="inverno" {% if params.period2 == 'inverno' %} selected="selected" {% endif %}>Зима</option>
+												<option value="primavera" {% if params.period2 == 'primavera' %} selected="selected" {% endif %}>Весна</option>
+												<option value="estate" {% if params.period2 == 'estate' %} selected="selected" {% endif %}>Лето</option>
+												<option value="autunno" {% if params.period2 == 'autunno' %} selected="selected" {% endif %}>Осень</option>
+											</select>
+										</div>
+
+										<div class="col">
+											<select id="year2" class="form-control" name="year2" value="{{params.year2}}">
+												<option value="2019" {% if params.year2 == 2019 %} selected="selected" {% endif %}>2019</option>
+												<option value="2020" {% if params.year2 == 2020 %} selected="selected" {% endif %}>2020</option>
+											</select>
+										</div>
+									</div>
+									<button class="btn btn-sm btn-primary mt-4" type="submit" name="action" value="makeSeasons">Сформировать</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+
+				<div class="card-header">
+					<strong>Количество уникальных нарушений</strong>
+				</div>
+				<div class="card-body">
+					<div class="row">
+						<div class="col-sm-12">
+							<table class="table table-responsive-sm table-bordered table-hover" id="topMashSeasons">
+								<thead class="thead-dark">
+									<tr>
+										<th>Машинист</th>
+										<th>
+											{% if params.period1 == 'inverno' %}
+												Зима
+											{% elif params.period1 == 'primavera' %}
+												Весна
+											{% elif params.period1 == 'estate' %}
+												Лето
+											{% else %}
+												Осень
+											{% endif %} {{params.year1}}
+										</th>
+										<th>
+											{% if params.period2 == 'inverno' %}
+												Зима
+											{% elif params.period2 == 'primavera' %}
+												Весна
+											{% elif params.period2 == 'estate' %}
+												Лето
+											{% else %}
+												Осень
+											{% endif %} {{params.year2}}
+										</th>
+									</tr>
+								</thead>
+								<tbody>
+									{%for unique_incident in unique_incidents_seasons %}
+										<tr>
+											<td>{{unique_incident.person}}</td>
+											<td>{{unique_incident.count1}}</td>
+											<td>{{unique_incident.count2}}</td>
+										</tr>
+									{% endfor %}
+
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+
+<script src="static/js/jquery-3.5.1.slim.min.js"></script>
+<script src="static/js/popper.min.js"></script>
+<script src="static/js/bootstrap.min.js"></script>
+</body>
+</html>	
