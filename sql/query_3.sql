@@ -12,6 +12,7 @@ join (
 	select t.ID_SP_NAR, count(*) as totalCount
 	from test_months t
 	where t.Date_NAR > :start_date and t.Date_NAR < :finish_date
+	and t.'табельный номер инструктора' = :minstr
 	group by t.ID_SP_NAR
 ) x on (t.ID_SP_NAR = x.ID_SP_NAR)
 where t.'табельный номер инструктора' = :minstr
